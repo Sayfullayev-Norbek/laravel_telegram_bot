@@ -6,6 +6,7 @@ use Milly\Laragram\FSM\FSM;
 use Milly\Laragram\Laragram;
 use App\Models\BotUser;
 use App\Http\Controllers\BotController;
+use App\Http\Controllers\LeadController;
 
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -20,7 +21,15 @@ Route::get('/bot', function () {
     );
 });
 
-Route::post('/bot',[BotController::class, 'botController']);
+
+Route::post('/bot', function (){
+    FSM::route('/', [BotController::class, 'botController']);
+    FSM::route('name', [BotController::class, 'nameController']);
+    FSM::route('javob', [BotController::class, 'javobController']);
+});
+
+
+
 
 
 
