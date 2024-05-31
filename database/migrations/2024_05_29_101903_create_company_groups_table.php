@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::create('company_groups', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('company_id');
-            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
+            $table->integer('company_id')->unique();
             $table->string('telegram_chat_id');
             $table->timestamps();
         });

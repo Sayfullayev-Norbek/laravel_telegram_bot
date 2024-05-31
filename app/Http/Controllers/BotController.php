@@ -3,97 +3,123 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
+use App\Models\Company_group;
 use App\Service\LeadService;
+use App\Service\ModmeService;
 use Milly\Laragram\FSM\FSM;
 use Milly\Laragram\Types\Message;
 use Milly\Laragram\Laragram;
 use App\Models\Lead;
 
-
 class BotController extends Controller{
-    private LeadService $leadServive;
+    private LeadService $leadService;
+    private ModmeService $modmeService;
+
     public function __construct()
     {
-        $this->leadServive = new LeadService();
+        $this->leadService = new LeadService();
+        $this->modmeService = new ModmeService();
     }
-    public function botController(Message $message)
+    public function start_private(Message $message)
     {
-        $text = $message->text;
-        $chat_id = $message->from->id;
-        $last_name = $message->from->last_name;
+        if ($message->chat->type == 'private') {
+            $text = $message->text;
+            $chat_id = $message->from->id;
+            $last_name = $message->from->last_name;
 
-        if (str_contains($text, "/start ")) {
-
-            $modme_id = explode(" ", $text)[1];
-            $company_name = Company::find($modme_id);
-            $lead = [
-                'telegram_id' => $chat_id,
-                'telegram_name' => $last_name,
-                'modme_company_id' => $modme_id
-            ];
-            $this->leadServive->store($lead);
-
-            Laragram::sendMessage(
-                1585277374,
-                null,
-                'telefon no\'mer va ismingiz Bizni O\'quv markaz nomi => '.  $company_name->name
-            );
-            FSM::update('name');
-
-
-        }
-    }
-    public function nameController(Message $message)
-    {
-        $text = $message->text;
-        $chat_id = $message->from->id;
-        $last_name = $message->from->first_name;
-        $leads = Lead::where('telegram_id', $chat_id)->first();
-        $modme_id = $leads->modme_company_id;
-        $company_name = Company::find($modme_id);
-
-        if ($text){
-            $lead = [
-                'telegram_id' => $chat_id,
-                'telegram_name' => $last_name,
-                'modme_company_id' => $modme_id,
-                'lead_name' => $company_name->name
-            ];
-            $lead_db = Lead::find($modme_id);
-
-            if ($lead_db) {
-                $lead_db->update($lead);
+            if (str_contains($text, "/start ")) {
+                $modme_id = explode(" ", $text)[1];
+                $company = Company::find($modme_id);
+                $lead = [
+                    'telegram_id' => $chat_id,
+                    'telegram_name' => $last_name,
+                    'modme_company_id' => $modme_id
+                ];
+                $this->leadService->store($lead);
+                Laragram::sendMessage(
+                    $chat_id,
+                    null,
+                    'Bizni O\'quv markaz nomi => ' . $company->name . 'Ismingiz va Telefon raqamiz qoldiring bog\'lanishga '
+                );
+                FSM::update('name');
             }
-            Laragram::sendMessage(
-                1585277374,
-                null,
-                "Number ism " . $leads->lead_name
-            );
-            FSM::update('javob');
         }
     }
-    public function javobController(Message $message)
+
+    public function create_text_number(Message $message)
     {
-        $chat_id = $message->from->id;
         $text = $message->text;
-
+        $chat_id = $message->from->id;
         $getPhoneNumbers = $this->getPhoneNumber($text);
-        if (count($getPhoneNumbers) > 0) {
-            $getPhoneNumbersStr = implode(', ', $getPhoneNumbers);
-            Laragram::sendMessage(
-                1585277374, // Replace with actual recipient ID
-                null,
-                "Received the following phone number(s): " . $getPhoneNumbersStr
-            );
+        $last_name = $message->from->last_name;
+        $lead = Lead::query()->where('telegram_id', $chat_id)->latest()->first();
 
-        } else {
+        if (count($getPhoneNumbers) > 0){
+            $getPhoneNumbersStr = implode(', ', $getPhoneNumbers);
+            $data = [
+                'telegram_name' => $last_name,
+                'lead_name' => $text,
+                'lead_phone' => $getPhoneNumbersStr
+            ];
+            $lead->update($data);
             Laragram::sendMessage(
                 $chat_id,
                 null,
-                "No valid phone numbers found. Please provide a valid phone number."
+                "Number ism " . $lead->lead_name
+            );
+            $this->modmeService->setToken($lead->company->modme_token);
+            return $this->modmeService->sendLead([
+                'name' => 'milly',
+                'phone' => $lead->lead_phone,
+                'comment' => $message->text,
+                'branch_id' => 147
+            ]);
+        }else{
+            Laragram::sendMessage(
+                $chat_id,
+                null,
+                "ERROR"
             );
         }
     }
+    public function start_group(Message $message)
+    {
+        if ($message->chat->type == 'group' || $message->chat->type == 'supergroup') {
+            $text = $message->text;
+            $chat_id = $message->from->id;
+            $getPhoneNumbers = $this->getPhoneNumber($text);
+            if (count($getPhoneNumbers) > 0) {
+                $companyGroup = Company_group::query()->where('telegram_chat_id', $chat_id)->first();
+                $lead = Lead::query()->where('telegram_id', $chat_id)->latest()->first();
+                $getPhoneNumbersStr = implode(', ', $getPhoneNumbers);
+                if ($companyGroup) {
+                    $group_name = $message->chat->title;
+                    $data = [
+                        'telegram_id' => $chat_id,
+                        'telegram_name' => $group_name,
+                        'lead_name' => $text,
+                        'lead_phone' => $getPhoneNumbersStr,
+                        'modme_company_id' => $companyGroup->company_id
+                    ];
+                    $this->leadService->store($data);
+                    Laragram::sendMessage(
+                        1585277374,
+                        null,
+                        'Bazaga yangi foydalanuvchi keldi!'
+                    );
+                    $this->modmeService->setToken($lead->company->modme_token);
+                    return $this->modmeService->sendLead([
+                        'name' => 'Uzb',
+                        'phone' => $getPhoneNumbersStr,
+                        'comment' => $text,
+                        'branch_id' => 147
+                    ]);
+                    FSM::update('/');
+                }
+            }
+        }
+    }
+
     private function getPhoneNumber($text)
     {
         preg_match_all('/(?:\+?\d{1,3})?[ -]?\(?\d{1,3}\)?[ -]?\d{1,3}[ -]?\d{1,3}[ -]?\d{1,3}[ -]?\d{1,4}/', $text, $matches);

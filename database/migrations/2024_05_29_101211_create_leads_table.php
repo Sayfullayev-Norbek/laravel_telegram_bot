@@ -16,7 +16,7 @@ return new class extends Migration
             $table->integer('telegram_id');
             $table->string('telegram_name');
             $table->string('lead_name')->nullable();
-            $table->integer('lead_phone')->nullable();
+            $table->string('lead_phone')->nullable();
             $table->integer('modme_company_id');
             $table->integer('modme_branch_id')->nullable();
             $table->integer('modme_section_id')->nullable();

@@ -23,9 +23,9 @@ Route::get('/bot', function () {
 
 
 Route::post('/bot', function (){
-    FSM::route('/', [BotController::class, 'botController']);
-    FSM::route('name', [BotController::class, 'nameController']);
-    FSM::route('javob', [BotController::class, 'javobController']);
+    FSM::route('name', [BotController::class, 'create_text_number']);
+    FSM::route('/', [BotController::class, 'start_private']);
+    FSM::route('/', [BotController::class, 'start_group']);
 });
 
 

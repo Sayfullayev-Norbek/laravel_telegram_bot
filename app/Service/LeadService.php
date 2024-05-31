@@ -13,3 +13,4 @@ class LeadService
         return Lead::query()->create($lead);
     }
 }
+
