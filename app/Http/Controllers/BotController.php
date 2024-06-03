@@ -14,13 +14,12 @@ use App\Models\Lead;
 class BotController extends Controller{
     private LeadService $leadService;
     private ModmeService $modmeService;
-
     public function __construct()
     {
         $this->leadService = new LeadService();
         $this->modmeService = new ModmeService();
     }
-    public function start_private(Message $message)
+    public function start_private(Message $message): void
     {
         if ($message->chat->type == 'private') {
             $text = $message->text;
@@ -29,7 +28,7 @@ class BotController extends Controller{
 
             if (str_contains($text, "/start ")) {
                 $modme_id = explode(" ", $text)[1];
-                $company = Company::find($modme_id);
+                $company = Company::find($modme_id);//
                 $lead = [
                     'telegram_id' => $chat_id,
                     'telegram_name' => $last_name,
@@ -45,14 +44,13 @@ class BotController extends Controller{
             }
         }
     }
-
     public function create_text_number(Message $message)
     {
         $text = $message->text;
         $chat_id = $message->from->id;
         $getPhoneNumbers = $this->getPhoneNumber($text);
         $last_name = $message->from->last_name;
-        $lead = Lead::query()->where('telegram_id', $chat_id)->latest()->first();
+        $lead = Lead::query()->where('telegram_id', $chat_id)->latest()->first();//
 
         if (count($getPhoneNumbers) > 0){
             $getPhoneNumbersStr = implode(', ', $getPhoneNumbers);
@@ -61,7 +59,7 @@ class BotController extends Controller{
                 'lead_name' => $text,
                 'lead_phone' => $getPhoneNumbersStr
             ];
-            $lead->update($data);
+            $lead->update($data);//
             Laragram::sendMessage(
                 $chat_id,
                 null,
@@ -89,8 +87,9 @@ class BotController extends Controller{
             $chat_id = $message->from->id;
             $getPhoneNumbers = $this->getPhoneNumber($text);
             if (count($getPhoneNumbers) > 0) {
-                $companyGroup = Company_group::query()->where('telegram_chat_id', $chat_id)->first();
-                $lead = Lead::query()->where('telegram_id', $chat_id)->latest()->first();
+                $companyGroup = Company_group::query()->where('telegram_chat_id', $chat_id)->first();//
+                $lead = Lead::query()->where('telegram_id', $chat_id)->latest()->first();//
+
                 $getPhoneNumbersStr = implode(', ', $getPhoneNumbers);
                 if ($companyGroup) {
                     $group_name = $message->chat->title;
@@ -99,7 +98,7 @@ class BotController extends Controller{
                         'telegram_name' => $group_name,
                         'lead_name' => $text,
                         'lead_phone' => $getPhoneNumbersStr,
-                        'modme_company_id' => $companyGroup->company_id
+                        'modme_company_id' => $companyGroup->company_id//
                     ];
                     $this->leadService->store($data);
                     Laragram::sendMessage(
@@ -109,7 +108,7 @@ class BotController extends Controller{
                     );
                     $this->modmeService->setToken($lead->company->modme_token);
                     return $this->modmeService->sendLead([
-                        'name' => 'Uzb',
+                        'name' => $group_name,
                         'phone' => $getPhoneNumbersStr,
                         'comment' => $text,
                         'branch_id' => 147
@@ -119,8 +118,7 @@ class BotController extends Controller{
             }
         }
     }
-
-    private function getPhoneNumber($text)
+    private function getPhoneNumber($text): array
     {
         preg_match_all('/(?:\+?\d{1,3})?[ -]?\(?\d{1,3}\)?[ -]?\d{1,3}[ -]?\d{1,3}[ -]?\d{1,3}[ -]?\d{1,4}/', $text, $matches);
         return $matches[0];

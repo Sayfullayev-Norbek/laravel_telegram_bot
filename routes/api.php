@@ -7,6 +7,7 @@ use Milly\Laragram\Laragram;
 use App\Models\BotUser;
 use App\Http\Controllers\BotController;
 use App\Http\Controllers\LeadController;
+use App\Http\Controllers\CompanyController;
 
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
