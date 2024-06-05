@@ -25,29 +25,52 @@ class CompanyController extends Controller
                 ->where('modme_company_id',$modme_id)
                 ->where('modme_token', $token)
                 ->first();
-            $request = $this->modmeService->checkToken($token);
-            $name = $request['company']['data']['name'];
-            $modme_company_id = $request['company']['data']['id'];
-            Company::query()->create([
-                'modme_company_id' => $modme_company_id,
-                'name' => $name,
-                'modme_token' => $token,
-            ]);
-
             if(!empty($data)){
-
-                return 'bor';
-            }else{
-                return "tariff tanlash";
+                $request = $this->modmeService->checkToken($token);
+                $name = $request['data']['company']['name'];
+                $modme_company_id = $request['data']['company']['id'];
+                Company::query()->create([
+                    'name' => $name,
+                    'modme_company_id' => $modme_company_id,
+                    'modme_token' => $token,
+                    'tariff' => "Zo'r"
+                ]);
+                return view('modme.statistika', compact('data', $data));
+            } else {
+                return view('modme.tariff');
             }
-            }
-        }else{
+        } else {
             return view('index');
         }
     }
 
-    public function store(Request $request)
-    {
+    public function tariffCreate(Request $request){
+        $request->validate([
+            'tariff' => 'required',
+            'terms' => 'accepted',
+        ]);
+        $tariff = $request->input('tariff');
+        $token = $request->input('token');
+        dd($request['token']);
 
+        $result = $this->modmeService->checkToken($token);
+
+        if (isset($result['error'])) {
+            return back()->withErrors(['modme_token' => $result['error']]);
+        }
+
+        $modme_company_id = $result['data']['company']['id'];
+        $name = $result['data']['company']['name'];
+
+        Company::query()->create([
+            'name' => $name,
+            'modme_company_id' => $modme_company_id,
+            'modme_token' => $token,
+            'tariff' => $tariff,
+        ]);
+
+        return view('modme.statistika');
     }
+    
 }
+

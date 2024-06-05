@@ -23,11 +23,6 @@ class LeadController extends Controller
         ];
 
         Lead::create($requestData);
-//
-//        $lead = new Lead();
-//        $lead->telegram_id = $telegram_id;
-//        $lead->telegram_name = $telegram_name;
-//        $lead->save();
-
+        
     }
 }

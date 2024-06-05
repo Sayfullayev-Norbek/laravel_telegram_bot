@@ -8,6 +8,9 @@ use App\Http\Controllers\CompanyController;
 //})->name('index');
 
 Route::get('/', [CompanyController::class, 'index'])->name('index');
+
+Route::post('/dashboard', [CompanyController::class, "tariffCreate"])->name('tariff_create');
+
 Route::get('/company', [CompanyController::class, 'create'])->name('company.create');
 Route::post('/company', [CompanyController::class, 'store'])->name('company.store');
 
