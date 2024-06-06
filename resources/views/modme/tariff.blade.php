@@ -8,10 +8,17 @@
 
     <form action="{{ route('tariff_create') }}" method="POST">
         @csrf
-        {{-- <div>
-            <label for="modme_token">Modme Token:</label>
-            <input type="text" id="modme_token" name="modme_token" required>
-        </div> --}}
+        @if (!empty($token))
+            <div>
+                <input type="hidden" name="token" value={{ $token }}>
+            </div>
+        @else
+        <div>
+            <H1>
+                Token Xato
+            </H1>
+        </div>
+        @endif
         <div class="col-6">
             <div class="col-lg-8 p-5">
                 <label for="tariff">Tariff:</label>

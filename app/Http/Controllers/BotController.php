@@ -38,7 +38,7 @@ class BotController extends Controller{
                 Laragram::sendMessage(
                     $chat_id,
                     null,
-                    'Bizni O\'quv markaz nomi => ' . $company->name . 'Ismingiz va Telefon raqamiz qoldiring bog\'lanishga '
+                    'Bizni O\'quv markaz nomi Ismingiz va Telefon raqamiz qoldiring bog\'lanishga '
                 );
                 FSM::update('name');
             }
@@ -63,7 +63,7 @@ class BotController extends Controller{
             Laragram::sendMessage(
                 $chat_id,
                 null,
-                "Number ism " . $lead->lead_name
+                "Raxmat siz bilan Bo'lanamiz"
             );
             $this->modmeService->setToken($lead->company->modme_token);
             return $this->modmeService->sendLead([
@@ -113,7 +113,6 @@ class BotController extends Controller{
                         'comment' => $text,
                         'branch_id' => 147
                     ]);
-                    FSM::update('/');
                 }
             }
         }
