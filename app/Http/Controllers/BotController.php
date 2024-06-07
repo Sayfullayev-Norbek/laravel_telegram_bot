@@ -28,7 +28,7 @@ class BotController extends Controller{
 
             if (str_contains($text, "/start ")) {
                 $modme_id = explode(" ", $text)[1];
-                $company = Company::find($modme_id);//
+                // $company = Company::find($modme_id);//
                 $lead = [
                     'telegram_id' => $chat_id,
                     'telegram_name' => $last_name,

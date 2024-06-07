@@ -30,22 +30,23 @@ class CompanyController extends Controller
                 ->where('modme_token', $token)
                 ->first();
 
+            $groups = Company_group::query()->where('company_id', $modme_id)->get();
+
             if(!empty($data)){
 
                 $request = $this->modmeService->checkToken($token);
                 $name = $request['data']['company']['name'];
                 $modme_company_id = $request['data']['company']['id'];
 
-                return view('modme.statistika', compact('data'));
+                return view('modme.statistika', compact('data', 'groups'));
             } else {
-                return view('modme.tariff', compact('token'));
+                return view('modme.tariff', compact('token', 'modme_id'));
             }
         } else {
             return view('index');
         }
     }
-
-    public function tariffCreate(Request $request){
+    public function tariffStore(Request $request){
         $request->validate([
             'tariff' => 'required',
             'terms' => 'accepted',
@@ -63,7 +64,6 @@ class CompanyController extends Controller
         if($result == true){
             if(!empty($result['data']['company']['id'])){
                 $modme_id = $result['data']['company']['id'];
-
                 if(!empty($result['data']['company']['name'])){
                     $name = $result['data']['company']['name'];
 
@@ -77,10 +77,7 @@ class CompanyController extends Controller
                         ->where('modme_company_id',$modme_id)
                         ->where('modme_token', $token)
                         ->first();
-                    $groups = Company_group::query()
-                        ->where('company_id', $modme_id)
-                        ->get();
-
+                    $groups = Company_group::query()->where('company_id', $modme_id)->get();
                     return view('modme.statistika', compact('data', 'groups'));
                 }else{
                     return "Company name yuq";

@@ -6,7 +6,7 @@
 
 @section('content')
 
-    <form action="{{ route('tariff_create') }}" method="POST">
+    <form action="{{ route('tariffStore', ['modme_id' => $modme_id, 'token' => $token]) }}" method="POST">
         @csrf
         @if (!empty($token))
             <div>
