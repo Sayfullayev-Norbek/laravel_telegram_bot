@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Company;
 use App\Models\Company_group;
+use App\Models\Lead;
 use Illuminate\Http\Request;
 use App\Service\ModmeService;
 
@@ -29,6 +30,7 @@ class CompanyController extends Controller
 
             $groups = Company_group::query()->where('company_id', $modme_id)->get();
             $modme_branch_id = Company_group::query()->where('company_id', $modme_id)->first();
+            $leads = Lead::all();
 
             if(!empty($data)){
 
@@ -36,7 +38,7 @@ class CompanyController extends Controller
                 $name = $request['data']['company']['name'];
                 $modme_company_id = $request['data']['company']['id'];
 
-                return view('modme.statistika', compact('data', 'groups', 'modme_id', 'token', "modme_branch_id"));
+                return view('modme.statistika', compact('data', 'groups', 'modme_id', 'token', "modme_branch_id", 'leads'));
             } else {
                 return view('modme.tariff', compact('token', 'modme_id'));
             }

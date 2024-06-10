@@ -1,5 +1,5 @@
 <div class="row mt-4">
-    <div class="col-12">
+    <div class="col-12" id="list">
         @if (!empty($groups) && $groups->count() > 0)
             <h2>Telegram Guruh Jadvali</h2>
             <table class="table table-bordered table-striped">
