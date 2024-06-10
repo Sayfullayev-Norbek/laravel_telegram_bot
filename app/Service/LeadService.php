@@ -12,5 +12,10 @@ class LeadService
     {
         return Lead::query()->create($lead);
     }
+
+    public function update(array $data)
+    {
+        return Lead::query()->update($data);
+    }
 }
 

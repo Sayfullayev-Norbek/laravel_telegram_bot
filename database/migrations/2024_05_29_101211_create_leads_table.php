@@ -13,13 +13,12 @@ return new class extends Migration
     {
         Schema::create('leads', function (Blueprint $table) {
             $table->id();
-            $table->integer('telegram_id');
+            $table->bigInteger('telegram_id');
             $table->string('telegram_name');
             $table->string('lead_name')->nullable();
             $table->string('lead_phone')->nullable();
-            $table->integer('modme_company_id');
-            $table->integer('modme_branch_id')->nullable();
-            $table->integer('modme_section_id')->nullable();
+            $table->bigInteger('modme_company_id');
+            $table->bigInteger('modme_branch_id')->nullable();
             $table->timestamps();
         });
     }

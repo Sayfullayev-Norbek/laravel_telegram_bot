@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('companies', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->integer('modme_company_id');
+            $table->bigInteger('modme_company_id');
             $table->string('modme_token');
             $table->string('tariff');
             $table->timestamps();

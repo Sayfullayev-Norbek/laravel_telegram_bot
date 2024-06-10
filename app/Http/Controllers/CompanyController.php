@@ -25,12 +25,10 @@ class CompanyController extends Controller
 
         if(!empty($modme_id) && !empty($token)){
 
-            $data = Company::query()
-                ->where('modme_company_id',$modme_id)
-                ->where('modme_token', $token)
-                ->first();
+            $data = Company::query()->where('modme_company_id',$modme_id)->where('modme_token', $token)->first();
 
             $groups = Company_group::query()->where('company_id', $modme_id)->get();
+            $modme_branch_id = Company_group::query()->where('company_id', $modme_id)->first();
 
             if(!empty($data)){
 
@@ -38,7 +36,7 @@ class CompanyController extends Controller
                 $name = $request['data']['company']['name'];
                 $modme_company_id = $request['data']['company']['id'];
 
-                return view('modme.statistika', compact('data', 'groups'));
+                return view('modme.statistika', compact('data', 'groups', 'modme_id', 'token', "modme_branch_id"));
             } else {
                 return view('modme.tariff', compact('token', 'modme_id'));
             }
@@ -57,15 +55,17 @@ class CompanyController extends Controller
 
         $result = $this->modmeService->checkToken($token);
 
+
         if (isset($result['error'])) {
             return back()->withErrors(['modme_token' => $result['error']]);
         }
+        $modme_id = $result['data']['company']['id'];
+        $name = $result['data']['company']['name'];
 
         if($result == true){
-            if(!empty($result['data']['company']['id'])){
-                $modme_id = $result['data']['company']['id'];
-                if(!empty($result['data']['company']['name'])){
-                    $name = $result['data']['company']['name'];
+            if(!empty($modme_id)){
+                if(!empty($name)){
+
 
                     Company::query()->create([
                         'name' => $name,
@@ -78,7 +78,8 @@ class CompanyController extends Controller
                         ->where('modme_token', $token)
                         ->first();
                     $groups = Company_group::query()->where('company_id', $modme_id)->get();
-                    return view('modme.statistika', compact('data', 'groups'));
+
+                    return view('modme.statistika', compact('data', 'groups', 'modme_id', 'token'));
                 }else{
                     return "Company name yuq";
                 }

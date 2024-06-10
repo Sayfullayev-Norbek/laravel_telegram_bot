@@ -23,7 +23,7 @@ class ModmeService
     {
         try {
             $client = new Client();
-            $post = $client->post($this->modme_url."/v1/leadData", [
+            $post = $client->post($this->modme_url."/v1/create_lead", [
                 'query' => [
                     "name" => $data['name'],
                     "phone" => $data['phone'],
@@ -33,8 +33,6 @@ class ModmeService
                     "source_id" => $data['source_id'] ?? null,
                 ],
                 'headers' => [
-//                    'Authorization' => 'Bearer '.$this->token,
-                    'Authorization' => 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2FwaS5tb2RtZS5kZXYvdjEvYXV0aC9sb2dpbiIsImlhdCI6MTcxNzY2MDEwMywiZXhwIjoxNzE3NzAzMzAzLCJuYmYiOjE3MTc2NjAxMDMsImp0aSI6Ik9pOGw4eUpua1kwemxOcWEiLCJzdWIiOiIxMzI4OTMiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.pSn_LZSBdjx2gNIWONVkhJjsLo7OpLu4SjzOT7vA_JM',
                     'Content-Type' => 'application/json',
                 ]
             ]);
